@@ -29,32 +29,23 @@ void main()
 }
 
 
-public final class MathUtils
-{
+public final class MathUtils {
+
     private MathUtils() {}
 
     public static int max(int a, int b, int c) {
-        if (a > b && a > c) {
-            return a;
-        } else if (b > a && b > c) {
-            return b;
-        } else {
-            return c;
-        }
+        return Math.max(a, Math.max(b, c));
     }
 
     public static int min(int a, int b, int c) {
-        if (a < b && a < c) {
-            return a;
-        } else if (b < a && b < c) {
-            return b;
-        } else {
-            return c;
-        }
+        return Math.min(a, Math.min(b, c));
     }
 
     public static double solveLinear(double a, double b) {
-        return (-b) / a;
+        if (a == 0) {
+            throw new IllegalArgumentException("Коэффициент a не может быть равен 0");
+        }
+        return -b / a;
     }
 
     public static String getSign(int num) {
@@ -62,118 +53,137 @@ public final class MathUtils
             return "положительное";
         } else if (num < 0) {
             return "отрицательное";
+        } else {
+            return "нулевое";
         }
-        return "нулевое";
     }
 
     public static double[] solveQuadratic(double a, double b, double c) {
-        double discr = b * b - 4 * a * c;
-        double ans[] = new double[2];
-
-        if (discr > 0) {
-            ans[0] = (-b + Math.pow(discr, 0.5)) / (2 * a);
-            ans[1] = (-b - Math.pow(discr, 0.5)) / (2 * a);
-
-            return ans;
-        } else if (discr == 0) {
-            ans[0] = (-b) / (2 * a);
-            ans[1] = ans[0];
-            return ans;
-        } else {
-            IO.println("нет решений в поле действительных чисел\n");
-            return null;
+        if (a == 0) {
+            throw new IllegalArgumentException("Коэффициент a не может быть равен 0 (уравнение не квадратное)");
         }
+
+        double discriminant = b * b - 4 * a * c;
+        double[] roots = new double[2];
+
+        if (discriminant > 0) {
+            double sqrtDisc = Math.sqrt(discriminant);
+            roots[0] = (-b + sqrtDisc) / (2 * a);
+            roots[1] = (-b - sqrtDisc) / (2 * a);
+        } else if (discriminant == 0) {
+            roots[0] = -b / (2 * a);
+            roots[1] = roots[0];
+        } else {
+            IO.println("Нет решений в поле действительных чисел");
+            roots[0] = 0;
+            roots[1] = 0;
+        }
+        return roots;
     }
 
     public static int sumEvenNumbers(int n) {
         int sum = 0;
-
         for (int i = 2; i <= n; i += 2) {
             sum += i;
         }
-
         return sum;
     }
 
     public static long factorial(int n) {
-        long factorial = 1;
-
-        for (int i = 2; i <= n; i++) {
-            factorial *= i;
+        if (n < 0) {
+            throw new IllegalArgumentException("Факториал отрицательного числа не определён");
         }
-
-        return factorial;
+        long result = 1;
+        for (int i = 2; i <= n; i++) {
+            result *= i;
+        }
+        return result;
     }
 
     public static boolean isPrime(int num) {
         if (num <= 1) {
             return false;
         }
-
-        for (int i = 2; i <= Math.pow(num, 0.5) + 1; i++) {
+        for (int i = 2; i * i <= num; i++) {
             if (num % i == 0) {
                 return false;
             }
         }
-
         return true;
     }
 
-    public static double arithmeticMean(double matrix[][]) {
-        double sum = 0;
-        int cnt = 0;
+    public static double arithmeticMean(double[][] matrix) {
+        if (matrix == null || matrix.length == 0) {
+            throw new IllegalArgumentException("Матрица не должна быть пустой");
+        }
 
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                cnt++;
-                sum += matrix[i][j];
+        double sum = 0;
+        int count = 0;
+        for (double[] row : matrix) {
+            if (row == null) continue;
+            for (double val : row) {
+                sum += val;
+                count++;
             }
         }
 
-        return sum / cnt;
+        if (count == 0) {
+            throw new IllegalArgumentException("Матрица не содержит элементов");
+        }
+        return sum / count;
     }
 
-    public static double geometricMean(double matrix[][]) {
-        double prod = 1;
-        int cnt = 0;
+    public static double geometricMean(double[][] matrix) {
+        if (matrix == null || matrix.length == 0) {
+            throw new IllegalArgumentException("Матрица не должна быть пустой");
+        }
 
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                cnt++;
-                prod *= matrix[i][j];
+        double product = 1.0;
+        int count = 0;
+        for (double[] row : matrix) {
+            if (row == null) continue;
+            for (double val : row) {
+                product *= val;
+                count++;
             }
         }
 
-        return Math.pow(prod, 1.0/cnt);
+        if (count == 0) {
+            throw new IllegalArgumentException("Матрица не содержит элементов");
+        }
+        return Math.pow(product, 1.0 / count);
     }
 
-    public static double sumEvenColumns(double matrix[][]) {
+    public static double sumEvenColumns(double[][] matrix) {
         double sum = 0;
-
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                if (j % 2 == 0)
-                {
-                    sum += matrix[i][j];
+        if (matrix == null) {
+            return sum;
+        }
+        for (double[] row : matrix) {
+            if (row == null) continue;
+            for (int j = 0; j < row.length; j++) {
+                if (j % 2 == 0) {
+                    sum += row[j];
                 }
             }
         }
-
         return sum;
     }
 
-    public static double productOddRows(double matrix[][]) {
-        double prod = 1;
-
+    public static double productOddRows(double[][] matrix) {
+        double product = 1.0;
+        if (matrix == null) {
+            return product;
+        }
         for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                if (i % 2 == 1)
-                {
-                    prod *= matrix[i][j];
+            if (i % 2 == 1) {
+                double[] row = matrix[i];
+                if (row == null) continue;
+                for (double val : row) {
+                    product *= val;
                 }
             }
         }
-
-        return prod;
+        return product;
     }
 }
